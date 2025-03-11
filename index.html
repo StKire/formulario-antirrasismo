@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Registro de Asistentes</title>
+
+    <!-- Librería QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <img src="images/utc.webp" alt="" class="imagen">
+    <img src="images/logo.jpg" alt="" class="imagen" id="logo">
+
+    <h1>Registro de Asistentes</h1>
+
+    <div class="container">
+        <!-- Columna del formulario -->
+        <div class="form-column">
+            <form id="registroForm">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                <br>
+                <label for="carrera">Carrera:</label>
+                <select name="" id="carrera" required>
+                    <option value="contaduria">Contaduria</option>
+                    <option value="derecho">Derecho</option>
+                    <option value="diseño">Diseño Grafico</option>
+                    <option value="sistemas">Ing. en Sistemas Computacionales</option>
+                    <option value="mercadotecnia">Mercadotecnia</option>
+                    <option value="pedagogia">Pedagogia</option>
+                    <option value="psicologia">Psicologia</option>  
+                    <option value="turismo">Turismo</option>
+                </select>
+                <br>
+                <label for="cuatrimestre">Cuatrimestre:</label>
+                <input type="number" id="cuatrimestre" name="cuatrimestre" required>
+                <br>
+                <button type="submit">Registrarse</button>
+            </form>
+
+            <div id="qrCodeContainer" style="display: none;">
+                <h2>Tu código QR para el evento:</h2>
+                <div id="qrCode"></div>
+                <p>Guarda este código QR, lo necesitarás para el día del evento.</p>
+                <!-- Botón para descargar el QR -->
+                <button id="descargarQR">Descargar QR</button>
+            </div>
+
+        </div>
+
+        <!-- Columna del cronograma -->
+        <div class="schedule-column">
+            <div class="event-schedule">
+                <h2>Jornada Antirracista en la Universidad Tres Culturas</h2>
+                <p><strong>25 de marzo de 2025, 10:00 a 14:00 horas</strong></p>
+
+                <table>
+                    <tr>
+                        <th>09:30 a 10:00 horas</th>
+                        <td><strong>Inauguración</strong></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Autoridades de la UTC</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th>10:00 a 10:20 horas</th>
+                        <td><strong>Presentación de Spoken Word</strong></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Markos IK</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th>10:20 a 12:00 horas</th>
+                        <td><strong>Conversatorio. La lucha afrodescendiente contra el racismo</strong></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Sylvie Henri, cantante</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Markos Ik, cantante</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Abraham Santiago, bailarín</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Claudia, Orika</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Modera: Celeste Sánchez, activista</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th>12:00 a 13:45 horas</th>
+                        <td><strong>¿Qué tan racistas o antirracistas somos? Conversación colectiva entre las y los alumnos de la UTC</strong></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Coordina Celeste Sánchez</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <th>13:45 a 14:00 horas</th>
+                        <td><strong>Clausura</strong></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>- Representante de la UTC</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Diálogo para alertas -->
+    <dialog id="alertDialog">
+        <p id="dialogMessage"></p>
+        <button onclick="document.getElementById('alertDialog').close()">Cerrar</button>
+    </dialog>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
