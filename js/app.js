@@ -1,30 +1,22 @@
-let db;
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getFirestore, addDoc, collection, query,where,getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Abrir o crear la base de datos
-let request = indexedDB.open("AsistenciaDB", 1);
-
-request.onupgradeneeded = function(event) {
-    db = event.target.result;
-
-    // Crear el store (almacén de objetos) si no existe
-    if (!db.objectStoreNames.contains("Asistentes")) {
-        let store = db.createObjectStore("Asistentes", { keyPath: "id", autoIncrement: true });
-
-        // Crear índices para los campos
-        store.createIndex("nombreIndex", "nombre", { unique: true }); // Nombre único
-        store.createIndex("qrCodeIndex", "qrCode", { unique: true }); // QR único
-        store.createIndex("asistioIndex", "asistio", { unique: false });
-    }
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDYPmDxOVwne5EIiwVrn7OwlD2vuwOxC_k",
+    authDomain: "crud-firestore-70529.firebaseapp.com",
+    projectId: "crud-firestore-70529",
+    storageBucket: "crud-firestore-70529.firebasestorage.app",
+    messagingSenderId: "1086781642962",
+    appId: "1:1086781642962:web:9c2ad63762330d4adc350b"
 };
 
-request.onsuccess = function(event) {
-    db = event.target.result;
-    console.log("Base de datos abierta correctamente.");
-};
-
-request.onerror = function(event) {
-    console.error("Error al abrir la base de datos:", event.target.error);
-};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // Función para mostrar alertas
 function mostrarAlerta(mensaje) {
@@ -68,99 +60,75 @@ function descargarQR() {
 }
 
 // Registrar asistente
-document.getElementById("registroForm").addEventListener("submit", function(event) {
+document.getElementById("registroForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const nombre = document.getElementById("nombre").value;
     const carrera = document.getElementById("carrera").value;
     const cuatrimestre = document.getElementById("cuatrimestre").value;
 
-    const transaction = db.transaction("Asistentes", "readwrite");
-    const store = transaction.objectStore("Asistentes");
-    const nombreIndex = store.index("nombreIndex");
-
     // Verificar si el nombre ya está registrado
-    const request = nombreIndex.get(nombre);
+    const q = query(collection(db, "asistentes"), where("nombre", "==", nombre));
+    const querySnapshot = await getDocs(q);
 
-    request.onsuccess = function(event) {
-        const asistenteExistente = event.target.result;
+    if (!querySnapshot.empty) {
+        mostrarAlerta("¡Error! Este nombre ya está registrado.");
+    } else {
+        // Generar un código QR único
+        const qrCodeData = `Asistente: ${nombre}, Carrera: ${carrera}, Cuatrimestre: ${cuatrimestre}`;
 
-        if (asistenteExistente) {
-            mostrarAlerta("¡Error! Este nombre ya está registrado.");
-        } else {
-            // Generar un código QR único
-            const qrCodeData = `Asistente: ${nombre}, Carrera: ${carrera}, Cuatrimestre: ${cuatrimestre}`;
-
-            // Registrar nuevo asistente
-            const nuevoAsistente = {
+        // Registrar nuevo asistente
+        try {
+            await addDoc(collection(db, "asistentes"), {
                 nombre: nombre,
                 carrera: carrera,
                 cuatrimestre: cuatrimestre,
                 qrCode: qrCodeData, // Almacenar el contenido del QR
                 asistio: false // Inicialmente no ha asistido
-            };
+            });
 
-            const addRequest = store.add(nuevoAsistente);
+            // Mostrar el QR generado
+            const qrCodeContainer = document.getElementById("qrCodeContainer");
+            const qrCodeElement = document.getElementById("qrCode");
+            generarQR(qrCodeData, qrCodeElement);
+            qrCodeContainer.style.display = "block";
 
-            addRequest.onsuccess = function() {
-                // Mostrar el QR generado
-                const qrCodeContainer = document.getElementById("qrCodeContainer");
-                const qrCodeElement = document.getElementById("qrCode");
-                generarQR(qrCodeData, qrCodeElement);
-                qrCodeContainer.style.display = "block";
+            // Habilitar el botón de descarga
+            document.getElementById("descargarQR").style.display = "block";
 
-                // Habilitar el botón de descarga
-                document.getElementById("descargarQR").style.display = "block";
-
-                mostrarAlerta("¡Registro exitoso! Guarda tu código QR.");
-                document.getElementById("registroForm").reset();
-            };
-
-            addRequest.onerror = function(event) {
-                mostrarAlerta("Error al registrar: " + event.target.error);
-            };
+            mostrarAlerta("¡Registro exitoso! Guarda tu código QR.");
+            document.getElementById("registroForm").reset();
+        } catch (error) {
+            mostrarAlerta("Error al registrar: " + error.message);
         }
-    };
-
-    request.onerror = function(event) {
-        mostrarAlerta("Error al verificar el registro: " + event.target.error);
-    };
+    }
 });
 
 // Evento para descargar el QR
 document.getElementById("descargarQR").addEventListener("click", descargarQR);
 
 // Función para verificar la asistencia (día del evento)
-function verificarAsistencia(qrCodeData) {
-    const transaction = db.transaction("Asistentes", "readwrite");
-    const store = transaction.objectStore("Asistentes");
-    const qrCodeIndex = store.index("qrCodeIndex");
+async function verificarAsistencia(qrCodeData) {
+    const q = query(collection(db, "asistentes"), where("qrCode", "==", qrCodeData));
+    const querySnapshot = await getDocs(q);
 
-    const request = qrCodeIndex.get(qrCodeData);
+    if (!querySnapshot.empty) {
+        const asistenteDoc = querySnapshot.docs[0];
+        const asistente = asistenteDoc.data();
 
-    request.onsuccess = function(event) {
-        const asistente = event.target.result;
-        if (asistente) {
-            if (asistente.asistio) {
-                mostrarAlerta("Este asistente ya fue registrado.");
-            } else {
-                asistente.asistio = true; // Marcar como asistió
-                const updateRequest = store.put(asistente);
-
-                updateRequest.onsuccess = function() {
-                    mostrarAlerta("¡Asistencia registrada correctamente!");
-                };
-
-                updateRequest.onerror = function(event) {
-                    mostrarAlerta("Error al registrar la asistencia: " + event.target.error);
-                };
-            }
+        if (asistente.asistio) {
+            mostrarAlerta("Este asistente ya fue registrado.");
         } else {
-            mostrarAlerta("Código QR no válido.");
+            try {
+                await updateDoc(doc(db, "asistentes", asistenteDoc.id), {
+                    asistio: true
+                });
+                mostrarAlerta("¡Asistencia registrada correctamente!");
+            } catch (error) {
+                mostrarAlerta("Error al registrar la asistencia: " + error.message);
+            }
         }
-    };
-
-    request.onerror = function(event) {
-        mostrarAlerta("Error al verificar el código QR: " + event.target.error);
-    };
+    } else {
+        mostrarAlerta("Código QR no válido.");
+    }
 }

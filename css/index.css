@@ -1,8 +1,12 @@
 :root {
-    --color-primary: #c01122; /* Rojo */
-    --color-secondary: #fcc401; /* Amarillo */
-    --color-tertiary: #e75d0f; /* Naranja */
-    --color-quaternary: #a6a8aa; /* Gris */
+    --color-primary: #c01122;
+    /* Rojo */
+    --color-secondary: #fcc401;
+    /* Amarillo */
+    --color-tertiary: #e75d0f;
+    /* Naranja */
+    --color-quaternary: #a6a8aa;
+    /* Gris */
 }
 
 * {
@@ -152,7 +156,7 @@ button:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.9);
-    z-index: 1000; /* Ensure it appears above other elements */
+    z-index: 1000;
 }
 
 #alertDialog p {

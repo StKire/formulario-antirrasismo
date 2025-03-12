@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/index.css">
     <title>Registro de Asistentes</title>
+<link rel="stylesheet" href="css/index.css">
 
     <!-- Librería QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-</head>
-<body>
 
+</head>
+
+<body>
     <img src="images/utc.webp" alt="" class="imagen">
     <img src="images/logo.jpg" alt="" class="imagen" id="logo">
 
@@ -31,7 +33,7 @@
                     <option value="sistemas">Ing. en Sistemas Computacionales</option>
                     <option value="mercadotecnia">Mercadotecnia</option>
                     <option value="pedagogia">Pedagogia</option>
-                    <option value="psicologia">Psicologia</option>  
+                    <option value="psicologia">Psicologia</option>
                     <option value="turismo">Turismo</option>
                 </select>
                 <br>
@@ -48,7 +50,6 @@
                 <!-- Botón para descargar el QR -->
                 <button id="descargarQR">Descargar QR</button>
             </div>
-
         </div>
 
         <!-- Columna del cronograma -->
@@ -56,7 +57,6 @@
             <div class="event-schedule">
                 <h2>Jornada Antirracista en la Universidad Tres Culturas</h2>
                 <p><strong>25 de marzo de 2025, 10:00 a 14:00 horas</strong></p>
-
                 <table>
                     <tr>
                         <th>09:30 a 10:00 horas</th>
@@ -67,7 +67,6 @@
                         <td>- Autoridades de la UTC</td>
                     </tr>
                 </table>
-
                 <table>
                     <tr>
                         <th>10:00 a 10:20 horas</th>
@@ -78,7 +77,6 @@
                         <td>- Markos IK</td>
                     </tr>
                 </table>
-
                 <table>
                     <tr>
                         <th>10:20 a 12:00 horas</th>
@@ -105,18 +103,17 @@
                         <td>- Modera: Celeste Sánchez, activista</td>
                     </tr>
                 </table>
-
                 <table>
                     <tr>
                         <th>12:00 a 13:45 horas</th>
-                        <td><strong>¿Qué tan racistas o antirracistas somos? Conversación colectiva entre las y los alumnos de la UTC</strong></td>
+                        <td><strong>¿Qué tan racistas o antirracistas somos? Conversación colectiva entre las y los
+                                alumnos de la UTC</strong></td>
                     </tr>
                     <tr>
                         <td></td>
                         <td>- Coordina Celeste Sánchez</td>
                     </tr>
                 </table>
-
                 <table>
                     <tr>
                         <th>13:45 a 14:00 horas</th>
@@ -130,12 +127,16 @@
             </div>
         </div>
     </div>
+
     <!-- Diálogo para alertas -->
     <dialog id="alertDialog">
         <p id="dialogMessage"></p>
         <button onclick="document.getElementById('alertDialog').close()">Cerrar</button>
     </dialog>
 
-    <script src="js/app.js"></script>
 </body>
+
+<!-- <script src="js/script.js" type="module"></script> -->
+<script src="js/app.js" type="module"></script>
+
 </html>
