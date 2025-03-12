@@ -18,6 +18,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+
+function cambioCam(){
+    window.location.href = "camara.html";
+}
+
+
 // Función para mostrar alertas
 function mostrarAlerta(mensaje) {
     const dialog = document.getElementById("alertDialog");
@@ -49,11 +55,31 @@ function descargarQR() {
     const qrCodeElement = document.getElementById("qrCode").querySelector("img");
 
     if (qrCodeElement) {
-        // Crear un enlace temporal para la descarga
-        const link = document.createElement("a");
-        link.href = qrCodeElement.src; // Usar la URL de la imagen del QR
-        link.download = "Asistencia.jpg"; // Nombre del archivo descargado
-        link.click(); // Simular clic en el enlace
+        // Crear un canvas para dibujar el QR con reborde
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        const qrSize = 200;
+        const borderSize = 20;
+
+        canvas.width = qrSize + borderSize * 2;
+        canvas.height = qrSize + borderSize * 2;
+
+        // Dibujar el reborde
+        context.fillStyle = "#FFFFFF"; // Color del reborde
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar el QR en el centro del canvas
+        const qrImage = new Image();
+        qrImage.src = qrCodeElement.src;
+        qrImage.onload = function () {
+            context.drawImage(qrImage, borderSize, borderSize, qrSize, qrSize);
+
+            // Crear un enlace temporal para la descarga
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/jpeg"); // Usar la URL del canvas
+            link.download = "Asistencia.jpg"; // Nombre del archivo descargado
+            link.click(); // Simular clic en el enlace
+        };
     } else {
         mostrarAlerta("No se pudo generar el código QR para descargar.");
     }
@@ -66,6 +92,11 @@ document.getElementById("registroForm").addEventListener("submit", async functio
     const nombre = document.getElementById("nombre").value;
     const carrera = document.getElementById("carrera").value;
     const cuatrimestre = document.getElementById("cuatrimestre").value;
+
+    if (nombre.toLowerCase() === "camara") {
+        cambioCam();
+        return;
+    }
 
     // Verificar si el nombre ya está registrado
     const q = query(collection(db, "asistentes"), where("nombre", "==", nombre));
@@ -107,28 +138,3 @@ document.getElementById("registroForm").addEventListener("submit", async functio
 // Evento para descargar el QR
 document.getElementById("descargarQR").addEventListener("click", descargarQR);
 
-// Función para verificar la asistencia (día del evento)
-async function verificarAsistencia(qrCodeData) {
-    const q = query(collection(db, "asistentes"), where("qrCode", "==", qrCodeData));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-        const asistenteDoc = querySnapshot.docs[0];
-        const asistente = asistenteDoc.data();
-
-        if (asistente.asistio) {
-            mostrarAlerta("Este asistente ya fue registrado.");
-        } else {
-            try {
-                await updateDoc(doc(db, "asistentes", asistenteDoc.id), {
-                    asistio: true
-                });
-                mostrarAlerta("¡Asistencia registrada correctamente!");
-            } catch (error) {
-                mostrarAlerta("Error al registrar la asistencia: " + error.message);
-            }
-        }
-    } else {
-        mostrarAlerta("Código QR no válido.");
-    }
-}
