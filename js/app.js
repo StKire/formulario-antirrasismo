@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import { getFirestore, addDoc, collection, query,where,getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import { getFirestore, addDoc, collection, query,where,getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -102,12 +102,19 @@ document.getElementById("registroForm").addEventListener("submit", async functio
     const q = query(collection(db, "asistentes"), where("nombre", "==", nombre));
     const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-        mostrarAlerta("¡Error! Este nombre ya está registrado.");
-    } else {
-        // Generar un código QR único
-        const qrCodeData = `Asistente: ${nombre}, Carrera: ${carrera}, Cuatrimestre: ${cuatrimestre}`;
+    // Generar un código QR único
+    const qrCodeData = `Asistente: ${nombre}, Carrera: ${carrera}, Cuatrimestre: ${cuatrimestre}`;
 
+    if (!querySnapshot.empty) {
+        // Si el asistente ya está registrado, actualizar su código QR
+        const docRef = querySnapshot.docs[0].ref;
+        try {
+            await updateDoc(docRef, { qrCode: qrCodeData });
+            mostrarAlerta("Código QR actualizado correctamente.");
+        } catch (error) {
+            mostrarAlerta("Error al actualizar QR: " + error.message);
+        }
+    } else {
         // Registrar nuevo asistente
         try {
             await addDoc(collection(db, "asistentes"), {
@@ -117,23 +124,25 @@ document.getElementById("registroForm").addEventListener("submit", async functio
                 qrCode: qrCodeData, // Almacenar el contenido del QR
                 asistio: false // Inicialmente no ha asistido
             });
-
-            // Mostrar el QR generado
-            const qrCodeContainer = document.getElementById("qrCodeContainer");
-            const qrCodeElement = document.getElementById("qrCode");
-            generarQR(qrCodeData, qrCodeElement);
-            qrCodeContainer.style.display = "block";
-
-            // Habilitar el botón de descarga
-            document.getElementById("descargarQR").style.display = "block";
-
             mostrarAlerta("¡Registro exitoso! Guarda tu código QR.");
-            document.getElementById("registroForm").reset();
         } catch (error) {
             mostrarAlerta("Error al registrar: " + error.message);
+            return;
         }
     }
+
+    // Mostrar el QR generado
+    const qrCodeContainer = document.getElementById("qrCodeContainer");
+    const qrCodeElement = document.getElementById("qrCode");
+    generarQR(qrCodeData, qrCodeElement);
+    qrCodeContainer.style.display = "block";
+
+    // Habilitar el botón de descarga
+    document.getElementById("descargarQR").style.display = "block";
+
+    document.getElementById("registroForm").reset();
 });
+
 
 // Evento para descargar el QR
 document.getElementById("descargarQR").addEventListener("click", descargarQR);
